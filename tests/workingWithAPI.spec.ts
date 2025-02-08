@@ -10,10 +10,6 @@ test.beforeEach(async ({page}) => {
   })
 
   await page.goto('https://conduit.bondaracademy.com/');
-  await page.getByText('Sign in').click()
-  await page.getByRole('textbox', {name: "Email"}).fill("hang@test.com")
-  await page.getByRole('textbox', {name:"Password"}).fill("123")
-  await page.getByRole('button').click()
 })
 
 test('has text', async ({ page }) => {
@@ -72,4 +68,37 @@ test('delete article', async ({ page, request }) => {
   await expect(page.locator('app-article-list h1').first()).not.toContainText('Test article')
 })
 
+test('create article', async ({page, request}) => {
+  await page.getByText('New Article').click()
+  await page.getByRole('textbox', {name: "Article Title"}).fill('API Playwright Practice')
+  await page.getByRole('textbox', {name: "What's this article about?"}).fill('Playwright automation')
+  await page.getByRole('textbox', {name: "Write your article (in markdown)"}).fill('Learn playwroght')
+  await page.getByRole('button', {name: " Publish Article "}).click()
+  //intercept browser API response:
+  const articleResponse = await page.waitForResponse('https://conduit-api.bondaracademy.com/api/articles/')
+  const articleResponseBody = await articleResponse.json()
+  const articleSlugID = articleResponseBody.article.slug
+
+  //assert in article page
+  await expect(page.locator('.article-page h1')).toContainText('API Playwright Practice')
+  //assert in Home page
+  await page.getByText('Home').click()
+  await page.getByText('Global Feed').click()
+  await expect(page.locator('app-article-list h1').first()).toContainText('API Playwright Practice')
+
+  //delete the article using API call - need access token
+  const response = await request.post('https://conduit-api.bondaracademy.com/api/users/login', {
+    data: {
+      "user":{"email":"hang@test.com","password":"123"}
+      }
+  })
+  const responseBody = await response.json()
+  const accessToken = responseBody.user.token
+  const deleteArticleRespinse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${articleSlugID}`, {
+    headers: {
+      Authorization: `Token ${accessToken}`
+    }
+  })
+  expect(deleteArticleRespinse.status()).toEqual(204)
+})
 
