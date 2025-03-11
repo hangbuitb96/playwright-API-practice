@@ -39,51 +39,30 @@ export default defineConfig({
   projects: [
     {
       name: 'setup',
-      testMatch: 'auth.setup.ts'
+      testMatch: 'auth.setup.ts',
     },
     {
-      name: 'chromium',
+      name: 'articleSetup',
+      testMatch: 'newArticle.setup.ts',
+      dependencies: ['setup'], // precondition, before running this project, run project 'setup' first
+      teardown: 'articleCleanUp' // postcondition
+    },
+    {
+      name: 'articleCleanUp',
+      testMatch: 'articleCleanUp.setup.ts',
+    },
+    {
+      name: 'regression',
       use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
-      dependencies: ['setup'] //precondition, before running project 'chromium', run project 'setup' first
+      dependencies: ['setup'] //precondition, before running this project, run project 'setup' first
     },
-
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'], storageState: '.auth/user.json' },
-      dependencies: ['setup']
+      name: 'likeCounter',
+      testMatch: 'likesCounter.spec.ts', // this project will only run this test
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
+      dependencies: ['articleSetup'] //before running this project, run project 'articleSetup' first
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'], storageState: '.auth/user.json' },
-      dependencies: ['setup']
-    },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://127.0.0.1:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

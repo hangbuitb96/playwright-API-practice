@@ -76,7 +76,7 @@ test('create article', async ({page, request}) => {
   await expect(page.locator('app-article-list h1').first()).toContainText('API Playwright Practice')
 
   //delete the article using API call - need access token
-  const deleteArticleRespinse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${articleSlugID}`)
-  expect(deleteArticleRespinse.status()).toEqual(204)
+  const deleteArticleResponse = await request.delete(`https://conduit-api.bondaracademy.com/api/articles/${articleSlugID}`)
+  expect(deleteArticleResponse.status()).toEqual(204)
 })
 
