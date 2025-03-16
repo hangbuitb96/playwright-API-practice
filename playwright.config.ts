@@ -34,6 +34,9 @@ export default defineConfig({
       'Authorization': `Token ${process.env.ACCESS_TOKEN}`
     },
   },
+  // Set global set up and teadown:
+  globalSetup: require.resolve('./global-setup.ts'),
+  globalTeardown: require.resolve('./global-teardown.ts'),
 
   /* Configure projects for major browsers */
   projects: [
@@ -53,16 +56,20 @@ export default defineConfig({
     },
     {
       name: 'regression',
+      testIgnore: 'likesCounter.spec.ts', // when running this project, it'll ignore this test
       use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
       dependencies: ['setup'] //precondition, before running this project, run project 'setup' first
     },
     {
-      name: 'likeCounter',
+      name: 'likesCounter',
       testMatch: 'likesCounter.spec.ts', // this project will only run this test
       use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
       dependencies: ['articleSetup'] //before running this project, run project 'articleSetup' first
     },
-
-    
+    {
+      name: 'likesCounterGlobal', // this project will use global-setup.ts
+      testMatch: 'likesCounter.spec.ts', // this project will only run this test
+      use: { ...devices['Desktop Chrome'], storageState: '.auth/user.json' },
+    },
   ],
 });

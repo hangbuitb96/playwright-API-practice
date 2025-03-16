@@ -5,7 +5,7 @@ setup('create new article', async({request}) => {
         data: {
           "article":{"title":"Like Test article","description":"Test description","body":"Test body","tagList":[]}
         },
-      })
+    })
       expect(articleResponse.status()).toEqual(201)
       const response = await articleResponse.json()
       const slugId = response.article.slug
